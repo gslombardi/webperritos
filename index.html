@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Skiper & Tom — Boxers del Corazón</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --gold: #e8a030;
+      --amber: #c97820;
+      --cream: #fdf6ec;
+      --brown: #6b3a1f;
+      --dark: #1a0f07;
+      --warm: #f5ddb0;
+      --accent: #d44f18;
+      --green: #4caf82;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--dark);
+      color: var(--cream);
+      font-family: 'Nunito', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ─── CUSTOM CURSOR ─── */
+    .cursor {
+      width: 18px; height: 18px;
+      border: 2px solid var(--gold);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: all .12s ease;
+      mix-blend-mode: difference;
+    }
+    .cursor-dot {
+      width: 6px; height: 6px;
+      background: var(--gold);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+    }
+    .cursor.big { width: 42px; height: 42px; opacity: .6; }
+
+    /* ─── PARTICLES CANVAS ─── */
+    #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+    /* ─── HERO ─── */
+    .hero {
+      position: relative; min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; z-index: 1;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 50%, rgba(232,160,48,.18) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 50% at 80% 50%, rgba(212,79,24,.15) 0%, transparent 60%),
+        linear-gradient(160deg, #1a0f07 0%, #2c1505 40%, #1a0f07 100%);
+    }
+
+    .hero-paws {
+      position: absolute; inset: 0; overflow: hidden;
+    }
+    .paw {
+      position: absolute; font-size: 2.2rem;
+      opacity: .07; animation: floatPaw 8s ease-in-out infinite;
+    }
+
+    @keyframes floatPaw {
+      0%,100%{ transform: translateY(0) rotate(0deg); }
+      50%{ transform: translateY(-20px) rotate(15deg); }
+    }
+
+    .hero-badge {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(.7rem,1.5vw,.9rem);
+      letter-spacing: .35em;
+      color: var(--gold);
+      border: 1px solid rgba(232,160,48,.4);
+      padding: .35em 1.2em;
+      border-radius: 100px;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(8px);
+      animation: fadeDown .8s ease both;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 14vw, 11rem);
+      line-height: .88;
+      color: transparent;
+      background: linear-gradient(135deg, var(--warm) 0%, var(--gold) 45%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      filter: drop-shadow(0 4px 40px rgba(232,160,48,.4));
+      animation: fadeDown .8s .15s ease both;
+    }
+    .hero-title span { color: var(--accent); -webkit-text-stroke: 0; }
+
+    .hero-sub {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(1rem,2.5vw,1.5rem);
+      color: rgba(253,246,236,.65);
+      margin-top: .8rem;
+      animation: fadeDown .8s .3s ease both;
+    }
+
+    .hero-scroll {
+      position: absolute; bottom: 2rem; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center;
+      gap: .4rem; color: var(--gold); opacity: .6;
+      font-size: .7rem; letter-spacing: .2em;
+      animation: bounce 2s infinite;
+    }
+    .hero-scroll span { font-size: 1.4rem; }
+
+    @keyframes bounce {
+      0%,100%{ transform: translateX(-50%) translateY(0); }
+      50%{ transform: translateX(-50%) translateY(8px); }
+    }
+
+    @keyframes fadeDown {
+      from{ opacity:0; transform:translateY(-24px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+
+    /* ─── DOGS SECTION ─── */
+    .dogs {
+      position: relative; z-index: 1;
+      padding: 5rem 2rem 8rem;
+    }
+
+    .section-label {
+      text-align: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: .85rem; letter-spacing: .4em;
+      color: var(--gold); margin-bottom: 1rem;
+    }
+    .section-title {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem,5vw,3.2rem);
+      font-weight: 700;
+      color: var(--cream);
+      margin-bottom: 4rem;
+    }
+
+    .dogs-grid {
+      max-width: 1200px; margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(480px,1fr));
+      gap: 3rem;
+    }
+
+    /* ─── DOG CARD ─── */
+    .dog-card {
+      position: relative; border-radius: 28px;
+      overflow: hidden;
+      background: linear-gradient(145deg, #2a1508, #1a0f07);
+      border: 1px solid rgba(232,160,48,.18);
+      box-shadow: 0 20px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(232,160,48,.05);
+      transition: transform .4s cubic-bezier(.34,1.56,.64,1), box-shadow .4s ease;
+      cursor: none;
+    }
+    .dog-card:hover {
+      transform: translateY(-12px) scale(1.01);
+      box-shadow: 0 40px 80px rgba(0,0,0,.7), 0 0 60px rgba(232,160,48,.15);
+    }
+
+    .dog-card::before {
+      content: '';
+      position: absolute; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(232,160,48,.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .dog-img-wrap {
+      position: relative; height: 380px; overflow: hidden;
+    }
+    .dog-img-wrap img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform .6s ease;
+      filter: saturate(1.1) contrast(1.05);
+    }
+    .dog-card:hover .dog-img-wrap img { transform: scale(1.07); }
+
+    .dog-img-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, #1a0f07 0%, rgba(26,15,7,.2) 50%, transparent 100%);
+    }
+
+    .dog-name-plate {
+      position: absolute; bottom: -1px; left: 0; right: 0;
+      padding: 1.2rem 2rem .8rem;
+      display: flex; align-items: flex-end; justify-content: space-between;
+    }
+    .dog-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.5rem;
+      color: var(--warm);
+      line-height: 1;
+      text-shadow: 0 2px 20px rgba(0,0,0,.8);
+    }
+    .dog-breed-tag {
+      font-size: .72rem; font-weight: 800;
+      letter-spacing: .12em;
+      background: var(--gold);
+      color: var(--dark);
+      padding: .3em .8em;
+      border-radius: 100px;
+      text-transform: uppercase;
+      margin-bottom: .4rem;
+    }
+
+    .dog-body { padding: 1.5rem 2rem 2rem; position: relative; z-index: 1; }
+
+    .dog-quote {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.05rem;
+      color: rgba(253,246,236,.7);
+      border-left: 3px solid var(--gold);
+      padding-left: 1rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .dog-stats {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: .8rem; margin-bottom: 1.5rem;
+    }
+    .stat {
+      background: rgba(232,160,48,.07);
+      border: 1px solid rgba(232,160,48,.15);
+      border-radius: 14px;
+      padding: .8rem .5rem;
+      text-align: center;
+    }
+    .stat-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      color: var(--gold);
+      display: block;
+    }
+    .stat-label {
+      font-size: .65rem; font-weight: 700;
+      letter-spacing: .1em;
+      color: rgba(253,246,236,.45);
+      text-transform: uppercase;
+    }
+
+    .dog-traits {
+      display: flex; flex-wrap: wrap; gap: .5rem;
+    }
+    .trait {
+      font-size: .75rem; font-weight: 700;
+      background: rgba(212,79,24,.15);
+      border: 1px solid rgba(212,79,24,.3);
+      color: #f5a07a;
+      padding: .28em .85em;
+      border-radius: 100px;
+      letter-spacing: .06em;
+      transition: all .2s;
+    }
+    .trait:hover {
+      background: rgba(212,79,24,.35);
+      transform: scale(1.05);
+    }
+
+    /* ─── HEARTS BAR ─── */
+    .hearts-bar {
+      display: flex; align-items: center; gap: .4rem;
+      margin-top: 1.2rem;
+    }
+    .hearts-bar span:first-child {
+      font-size: .7rem; font-weight: 700; letter-spacing: .1em;
+      color: rgba(253,246,236,.4); text-transform: uppercase;
+      margin-right: .4rem;
+    }
+    .heart { font-size: 1.1rem; animation: heartBeat 1.4s ease infinite; }
+    .heart:nth-child(2){ animation-delay: 0s; }
+    .heart:nth-child(3){ animation-delay: .2s; }
+    .heart:nth-child(4){ animation-delay: .4s; }
+    .heart:nth-child(5){ animation-delay: .6s; }
+    .heart:nth-child(6){ animation-delay: .8s; }
+
+    @keyframes heartBeat {
+      0%,100%{ transform: scale(1); }
+      14%{ transform: scale(1.3); }
+      28%{ transform: scale(1); }
+      42%{ transform: scale(1.2); }
+    }
+
+    /* ─── GALLERY ─── */
+    .gallery { position: relative; z-index: 1; padding: 4rem 2rem 6rem; }
+
+    .gallery-grid {
+      max-width: 1200px; margin: 2rem auto 0;
+      columns: 3; column-gap: 1.2rem;
+    }
+    .gallery-item {
+      break-inside: avoid;
+      margin-bottom: 1.2rem;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      cursor: none;
+    }
+    .gallery-item img {
+      width: 100%; display: block;
+      transition: transform .5s ease, filter .5s ease;
+      filter: saturate(.9);
+    }
+    .gallery-item:hover img {
+      transform: scale(1.04);
+      filter: saturate(1.3) contrast(1.05);
+    }
+    .gallery-item-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(26,15,7,.8) 0%, transparent 50%);
+      opacity: 0; transition: opacity .3s;
+      display: flex; align-items: flex-end;
+      padding: 1rem;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem; color: var(--warm);
+      letter-spacing: .1em;
+    }
+    .gallery-item:hover .gallery-item-overlay { opacity: 1; }
+
+    /* ─── TIMELINE ─── */
+    .timeline { position: relative; z-index: 1; padding: 4rem 2rem 6rem; }
+
+    .timeline-track {
+      max-width: 800px; margin: 2rem auto 0;
+      position: relative;
+    }
+    .timeline-track::before {
+      content: '';
+      position: absolute; left: 50%; top: 0; bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+      transform: translateX(-50%);
+    }
+
+    .tl-item {
+      display: flex; gap: 2rem;
+      margin-bottom: 3rem;
+      align-items: flex-start;
+    }
+    .tl-item:nth-child(even) { flex-direction: row-reverse; }
+
+    .tl-card {
+      flex: 1; background: rgba(232,160,48,.06);
+      border: 1px solid rgba(232,160,48,.15);
+      border-radius: 18px; padding: 1.4rem;
+      position: relative;
+      transition: all .3s;
+    }
+    .tl-card:hover {
+      background: rgba(232,160,48,.12);
+      box-shadow: 0 8px 30px rgba(232,160,48,.12);
+    }
+    .tl-emoji { font-size: 2rem; margin-bottom: .6rem; display: block; }
+    .tl-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem; color: var(--gold);
+      letter-spacing: .06em; margin-bottom: .4rem;
+    }
+    .tl-text { font-size: .88rem; color: rgba(253,246,236,.65); line-height: 1.6; }
+    .tl-date {
+      flex: 0 0 auto; width: 80px;
+      text-align: center;
+      padding-top: .8rem;
+    }
+    .tl-dot {
+      width: 16px; height: 16px;
+      background: var(--gold);
+      border-radius: 50%;
+      margin: 0 auto .5rem;
+      box-shadow: 0 0 0 4px rgba(232,160,48,.2), 0 0 20px var(--gold);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100%{ box-shadow: 0 0 0 4px rgba(232,160,48,.2), 0 0 20px var(--gold); }
+      50%{ box-shadow: 0 0 0 8px rgba(232,160,48,.1), 0 0 35px var(--gold); }
+    }
+    .tl-year {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: .85rem; color: rgba(232,160,48,.6);
+      letter-spacing: .1em;
+    }
+
+    /* ─── LOVE METER ─── */
+    .love { position: relative; z-index: 1; padding: 4rem 2rem 6rem; }
+    .love-container {
+      max-width: 700px; margin: 2rem auto 0;
+      text-align: center;
+    }
+    .love-hearts-display {
+      font-size: 5rem; letter-spacing: -.1em;
+      animation: floatHeart 3s ease-in-out infinite;
+      margin-bottom: 1.5rem;
+    }
+    @keyframes floatHeart {
+      0%,100%{ transform: translateY(0) scale(1); }
+      50%{ transform: translateY(-12px) scale(1.05); }
+    }
+    .love-meter-bar {
+      height: 14px; background: rgba(255,255,255,.08);
+      border-radius: 100px; overflow: hidden;
+      margin: 1.2rem auto; max-width: 500px;
+      border: 1px solid rgba(232,160,48,.15);
+    }
+    .love-meter-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--accent));
+      border-radius: 100px;
+      width: 0;
+      transition: width 2s cubic-bezier(.34,1.56,.64,1);
+      box-shadow: 0 0 16px var(--gold);
+    }
+    .love-meter-label {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem; color: var(--gold);
+      letter-spacing: .1em;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 3rem 2rem;
+      border-top: 1px solid rgba(232,160,48,.1);
+      color: rgba(253,246,236,.3);
+      font-size: .8rem;
+    }
+    footer strong { color: var(--gold); }
+
+    /* ─── LIGHTBOX ─── */
+    .lightbox {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(10,5,2,.95);
+      backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s;
+    }
+    .lightbox.active { opacity: 1; pointer-events: all; }
+    .lightbox img {
+      max-width: 90vw; max-height: 85vh;
+      border-radius: 18px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.8);
+      animation: zoomIn .3s ease;
+    }
+    @keyframes zoomIn {
+      from{ transform: scale(.8); opacity:0; }
+      to{ transform: scale(1); opacity:1; }
+    }
+    .lightbox-close {
+      position: absolute; top: 1.5rem; right: 1.5rem;
+      font-size: 2rem; color: var(--gold);
+      cursor: none; background: none; border: none;
+      transition: transform .2s;
+    }
+    .lightbox-close:hover { transform: rotate(90deg) scale(1.2); }
+
+    /* ─── SCROLL REVEAL ─── */
+    .reveal { opacity: 0; transform: translateY(40px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ─── CONFETTI CANVAS ─── */
+    #confetti { position: fixed; inset: 0; z-index: 100; pointer-events: none; }
+
+    /* ─── RESPONSIVE ─── */
+    @media(max-width: 900px) {
+      .dogs-grid { grid-template-columns: 1fr; }
+      .gallery-grid { columns: 2; }
+      .timeline-track::before { left: 2rem; }
+      .tl-item, .tl-item:nth-child(even) { flex-direction: column; }
+      .tl-date { width: auto; display: flex; align-items: center; gap: .8rem; padding: 0; }
+      .tl-dot { margin: 0; }
+    }
+    @media(max-width: 600px) {
+      .gallery-grid { columns: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+<canvas id="confetti"></canvas>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<!-- ════════ HERO ════════ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-paws" id="pawsContainer"></div>
+
+  <div class="hero-badge">🐾 Boxers del Corazón</div>
+  <h1 class="hero-title">SKIPER<br><span>&</span><br>TOM</h1>
+  <p class="hero-sub">Dos almas con cuatro patas — un solo corazón</p>
+
+  <div class="hero-scroll">
+    <span>↓</span>
+    DESCUBRE
+  </div>
+</section>
+
+<!-- ════════ PERFILES ════════ -->
+<section class="dogs" id="perfiles">
+  <p class="section-label reveal">🐾 Los Protagonistas</p>
+  <h2 class="section-title reveal">Conoce a Nuestros Héroes</h2>
+
+  <div class="dogs-grid">
+
+    <!-- SKIPER -->
+    <div class="dog-card reveal" id="skiperCard">
+      <div class="dog-img-wrap">
+        <img
+          src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&q=85"
+          alt="Skiper el Boxer"
+          loading="lazy"
+        />
+        <div class="dog-img-overlay"></div>
+        <div class="dog-name-plate">
+          <div class="dog-name">SKIPER</div>
+          <div class="dog-breed-tag">Boxer Leonado</div>
+        </div>
+      </div>
+      <div class="dog-body">
+        <p class="dog-quote">
+          "Soy el guardián del hogar y el primero en dar la bienvenida.
+           Mi energía no tiene fin y mi amor tampoco."
+        </p>
+        <div class="dog-stats">
+          <div class="stat">
+            <span class="stat-val">3</span>
+            <span class="stat-label">Años</span>
+          </div>
+          <div class="stat">
+            <span class="stat-val">28</span>
+            <span class="stat-label">Kg</span>
+          </div>
+          <div class="stat">
+            <span class="stat-val">⭐ 10</span>
+            <span class="stat-label">Carisma</span>
+          </div>
+        </div>
+        <div class="dog-traits">
+          <span class="trait">🏃 Hiperactivo</span>
+          <span class="trait">🛡️ Protector</span>
+          <span class="trait">🎾 Juguetón</span>
+          <span class="trait">🥩 Foodie</span>
+          <span class="trait">💤 Roncador</span>
+        </div>
+        <div class="hearts-bar">
+          <span>Amor:</span>
+          <span class="heart">❤️</span>
+          <span class="heart">❤️</span>
+          <span class="heart">❤️</span>
+          <span class="heart">❤️</span>
+          <span class="heart">❤️</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOM -->
+    <div class="dog-card reveal" id="tomCard">
+      <div class="dog-img-wrap">
+        <img
+          src="https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=800&q=85"
+          alt="Tom el Boxer"
+          loading="lazy"
+        />
+        <div class="dog-img-overlay"></div>
+        <div class="dog-name-plate">
+          <div class="dog-name">TOM</div>
+          <div class="dog-breed-tag">Boxer Atigrado</div>
+        </div>
+      </div>
+      <div class="dog-body">
+        <p class="dog-quote">
+          "Soy el filósofo de la casa. Me gusta observar el mundo
+           con calma… hasta que saco los juguetes."
+        </p>
+        <div class="dog-stats">
+          <div class="stat">
+            <span class="stat-val">2</span>
+            <span class="stat-label">Años</span>
+          </div>
+          <div class="stat">
+            <span class="stat-val">25</span>
+            <span class="stat-label">Kg</span>
+          </div>
+          <div class="stat">
+            <span class="stat-val">⭐ 10</span>
+            <span class="stat-label">Ternura</span>
+          </div>
+        </div>
+        <div class="dog-traits">
+          <span class="trait">😌 Tranquilo</span>
+          <span class="trait">🤗 Cariñoso</span>
+          <span class="trait">🕵️ Curioso</span>
+          <span class="trait">🌙 Dormilón</span>
+          <span class="trait">🎸 Dramático</span>
+        </div>
+        <div class="hearts-bar">
+          <span>Amor:</span>
+          <span class="heart">🧡</span>
+          <span class="heart">🧡</span>
+          <span class="heart">🧡</span>
+          <span class="heart">🧡</span>
+          <span class="heart">🧡</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════ GALERÍA ════════ -->
+<section class="gallery" id="galeria">
+  <p class="section-label reveal">📸 Galería</p>
+  <h2 class="section-title reveal">Sus Mejores Momentos</h2>
+
+  <div class="gallery-grid">
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&q=80" alt="Skiper"/>
+      <div class="gallery-item-overlay">Skiper al sol ☀️</div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1544568100-847a948585b9?w=600&q=80" alt="Boxer jugando"/>
+      <div class="gallery-item-overlay">Hora de juego 🎾</div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=600&q=80" alt="Tom"/>
+      <div class="gallery-item-overlay">Tom pensativo 🤔</div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=600&q=80" alt="Boxer corriendo"/>
+      <div class="gallery-item-overlay">A toda velocidad 🏃</div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1558788353-f76d92427f16?w=600&q=80" alt="Perros descansando"/>
+      <div class="gallery-item-overlay">Siesta VIP 💤</div>
+    </div>
+    <div class="gallery-item reveal">
+      <img src="https://images.unsplash.com/photo-1561037404-61cd46aa615b?w=600&q=80" alt="Boxer retrato"/>
+      <div class="gallery-item-overlay">¿Quién, yo? 😇</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ TIMELINE ════════ -->
+<section class="timeline" id="historia">
+  <p class="section-label reveal">📅 Historia</p>
+  <h2 class="section-title reveal">La Crónica de Skiper & Tom</h2>
+
+  <div class="timeline-track">
+    <div class="tl-item reveal">
+      <div class="tl-card">
+        <span class="tl-emoji">🐣</span>
+        <div class="tl-title">El Comienzo</div>
+        <div class="tl-text">Skiper llega a casa como un pequeño terremoto de patas y orejas enormes. Desde el primer día dejó claro quién manda (o lo intenta).</div>
+      </div>
+      <div class="tl-date">
+        <div class="tl-dot"></div>
+        <div class="tl-year">2022</div>
+      </div>
+      <div style="flex:1"></div>
+    </div>
+
+    <div class="tl-item reveal">
+      <div style="flex:1"></div>
+      <div class="tl-date">
+        <div class="tl-dot"></div>
+        <div class="tl-year">2023</div>
+      </div>
+      <div class="tl-card">
+        <span class="tl-emoji">🤝</span>
+        <div class="tl-title">Tom se Une</div>
+        <div class="tl-text">Tom aparece en escena con sus ojos de "soy inocente". Skiper lo mira desconfiado... por exactamente dos horas. Luego se convierten en inseparables.</div>
+      </div>
+    </div>
+
+    <div class="tl-item reveal">
+      <div class="tl-card">
+        <span class="tl-emoji">🏆</span>
+        <div class="tl-title">Primer Concurso</div>
+        <div class="tl-text">Participan en su primer concurso de razas local. Skiper se roba el show con su personalidad; Tom gana el premio a "mirada más tierna".</div>
+      </div>
+      <div class="tl-date">
+        <div class="tl-dot"></div>
+        <div class="tl-year">2024</div>
+      </div>
+      <div style="flex:1"></div>
+    </div>
+
+    <div class="tl-item reveal">
+      <div style="flex:1"></div>
+      <div class="tl-date">
+        <div class="tl-dot"></div>
+        <div class="tl-year">2025</div>
+      </div>
+      <div class="tl-card">
+        <span class="tl-emoji">🌟</span>
+        <div class="tl-title">Estrellas de Internet</div>
+        <div class="tl-text">Sus vídeos de juegos y travesuras acumulan miles de reacciones. El dúo más adorable de la familia, ahora también en la web.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ LOVE METER ════════ -->
+<section class="love" id="amor">
+  <p class="section-label reveal">💖 Felicidad</p>
+  <h2 class="section-title reveal">Nivel de Amor en Casa</h2>
+
+  <div class="love-container reveal">
+    <div class="love-hearts-display">❤️🐾🧡</div>
+    <p style="color:rgba(253,246,236,.6); font-style:italic; margin-bottom:1.5rem;">
+      Medidor oficial de cariño — actualizado a diario
+    </p>
+    <div class="love-meter-bar">
+      <div class="love-meter-fill" id="loveFill"></div>
+    </div>
+    <div class="love-meter-label" id="loveLabel">CARGANDO AMOR...</div>
+    <br>
+    <button onclick="triggerConfetti()" style="
+      margin-top:1.5rem;
+      background: linear-gradient(135deg, var(--gold), var(--accent));
+      border: none; border-radius: 100px;
+      padding: .85rem 2.5rem;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem; letter-spacing: .12em;
+      color: var(--dark); cursor: none;
+      box-shadow: 0 8px 24px rgba(232,160,48,.4);
+      transition: transform .2s, box-shadow .2s;
+    "
+    onmouseover="this.style.transform='scale(1.05)'"
+    onmouseout="this.style.transform='scale(1)'"
+    >🎉 ¡CELEBRAR A SKIPER Y TOM!</button>
+  </div>
+</section>
+
+<!-- ════════ FOOTER ════════ -->
+<footer>
+  <p style="font-size:2rem; margin-bottom:.5rem">🐾❤️🐾</p>
+  <p>Hecho con infinito amor para <strong>Skiper</strong> y <strong>Tom</strong></p>
+  <p style="margin-top:.4rem">Los mejores Boxers del mundo 🥊💛</p>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt=""/>
+</div>
+
+<script>
+/* ── CURSOR ── */
+const cursor = document.getElementById('cursor');
+const cursorDot = document.getElementById('cursorDot');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+  cursorDot.style.left = e.clientX + 'px';
+  cursorDot.style.top  = e.clientY + 'px';
+});
+document.querySelectorAll('a,button,.dog-card,.gallery-item,.trait').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('big'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
+});
+
+/* ── PARTICLES ── */
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+for (let i = 0; i < 80; i++) {
+  particles.push({
+    x: Math.random()*2000, y: Math.random()*1200,
+    r: Math.random()*2.5+.5,
+    dx: (Math.random()-.5)*.4,
+    dy: (Math.random()-.5)*.4,
+    alpha: Math.random()*.5+.1
+  });
+}
+
+function animateParticles() {
+  ctx.clearRect(0,0,W,H);
+  particles.forEach(p => {
+    p.x += p.dx; p.y += p.dy;
+    if (p.x<0||p.x>W) p.dx*=-1;
+    if (p.y<0||p.y>H) p.dy*=-1;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(232,160,48,${p.alpha})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+/* ── PAWS ── */
+const paws = ['🐾','🐾','🐾','🐾','🐾','🐾','🐾','🐾'];
+const pawContainer = document.getElementById('pawsContainer');
+paws.forEach((p,i) => {
+  const el = document.createElement('div');
+  el.className = 'paw';
+  el.textContent = p;
+  el.style.cssText = `
+    left:${Math.random()*95}%;
+    top:${Math.random()*95}%;
+    animation-delay:${i*.8}s;
+    animation-duration:${6+Math.random()*6}s;
+    font-size:${1.5+Math.random()*2.5}rem;
+  `;
+  pawContainer.appendChild(el);
+});
+
+/* ── SCROLL REVEAL ── */
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+reveals.forEach(el => observer.observe(el));
+
+/* ── LOVE METER ── */
+setTimeout(() => {
+  const fill = document.getElementById('loveFill');
+  const label = document.getElementById('loveLabel');
+  fill.style.width = '98%';
+  label.textContent = '98% — AMOR INFINITO ❤️';
+}, 800);
+
+/* ── GALLERY LIGHTBOX ── */
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+
+document.querySelectorAll('.gallery-item img').forEach(img => {
+  img.style.cursor = 'none';
+  img.parentElement.addEventListener('click', () => {
+    lightboxImg.src = img.src.replace('w=600','w=1200');
+    lightbox.classList.add('active');
+  });
+});
+function closeLightbox() { lightbox.classList.remove('active'); }
+lightbox.addEventListener('click', e => { if(e.target===lightbox) closeLightbox(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeLightbox(); });
+
+/* ── CONFETTI ── */
+const confCanvas = document.getElementById('confetti');
+const cCtx = confCanvas.getContext('2d');
+confCanvas.width = window.innerWidth;
+confCanvas.height = window.innerHeight;
+window.addEventListener('resize', () => {
+  confCanvas.width = window.innerWidth;
+  confCanvas.height = window.innerHeight;
+});
+
+let confettiParticles = [];
+let confettiRunning = false;
+
+const colors = ['#e8a030','#d44f18','#f5ddb0','#c97820','#fdf6ec','#ff6b6b','#4caf82'];
+const emojis = ['🐾','❤️','🧡','⭐','✨'];
+
+function triggerConfetti() {
+  confettiParticles = [];
+  for(let i = 0; i < 120; i++) {
+    confettiParticles.push({
+      x: Math.random() * confCanvas.width,
+      y: -20,
+      r: Math.random()*8+4,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      emoji: Math.random() > .6 ? emojis[Math.floor(Math.random()*emojis.length)] : null,
+      speed: Math.random()*4+2,
+      angle: Math.random()*Math.PI*2,
+      spin: (Math.random()-.5)*.2,
+      wobble: Math.random()*3,
+      wobbleSpeed: Math.random()*.1+.05,
+      wobbleAngle: Math.random()*Math.PI*2,
+      alpha: 1
+    });
+  }
+  if(!confettiRunning) animateConfetti();
+}
+
+function animateConfetti() {
+  confettiRunning = true;
+  cCtx.clearRect(0,0,confCanvas.width,confCanvas.height);
+  confettiParticles.forEach(p => {
+    p.y += p.speed;
+    p.wobbleAngle += p.wobbleSpeed;
+    p.x += Math.sin(p.wobbleAngle) * p.wobble;
+    p.angle += p.spin;
+    p.alpha -= .007;
+    if(p.emoji) {
+      cCtx.globalAlpha = Math.max(0, p.alpha);
+      cCtx.font = `${p.r*2}px serif`;
+      cCtx.fillText(p.emoji, p.x, p.y);
+    } else {
+      cCtx.save();
+      cCtx.globalAlpha = Math.max(0, p.alpha);
+      cCtx.translate(p.x, p.y);
+      cCtx.rotate(p.angle);
+      cCtx.fillStyle = p.color;
+      cCtx.fillRect(-p.r/2, -p.r/2, p.r, p.r*2.5);
+      cCtx.restore();
+    }
+  });
+  cCtx.globalAlpha = 1;
+  confettiParticles = confettiParticles.filter(p => p.alpha > 0 && p.y < confCanvas.height+40);
+  if(confettiParticles.length > 0) {
+    requestAnimationFrame(animateConfetti);
+  } else {
+    confettiRunning = false;
+    cCtx.clearRect(0,0,confCanvas.width,confCanvas.height);
+  }
+}
+
+/* ── TILT EFFECT ── */
+document.querySelectorAll('.dog-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width/2;
+    const y = e.clientY - rect.top - rect.height/2;
+    const tiltX = (y / rect.height) * 10;
+    const tiltY = -(x / rect.width) * 10;
+    card.style.transform = `translateY(-12px) scale(1.01) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+    card.style.perspective = '1000px';
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+  });
+});
+
+/* ── AUTO LOVE METER PULSE ── */
+setInterval(() => {
+  const label = document.getElementById('loveLabel');
+  const msgs = ['98% — AMOR INFINITO ❤️','100% — AMOR DESBORDADO 🧡','∞% — SIN LÍMITE 🐾'];
+  label.textContent = msgs[Math.floor(Math.random()*msgs.length)];
+}, 3000);
+</script>
+</body>
+</html>
